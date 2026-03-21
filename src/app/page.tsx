@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import SpotlightCard from '@/components/ui/SpotlightCard';
+import ShimmerButton from '@/components/ui/ShimmerButton';
 import { 
   ShuffleIcon, 
   GitGraphIcon, 
@@ -72,12 +74,36 @@ export default function Home() {
           className="text-center mb-16"
         >
           <h1 className="text-5xl sm:text-6xl font-bold mb-6 bg-gradient-to-r from-cyan-300 via-sky-200 to-orange-300 bg-clip-text text-transparent">
-            Algorithm Atlas
+            Algoviz
           </h1>
           <p className="text-xl text-slate-200/90 max-w-2xl mx-auto">
-            Interactive visualizations to understand sorting algorithms, graph algorithms, 
-            complexity analysis, and more. Learn by seeing!
+            Interactive visualizations for sorting, graph traversal, routing, and complexity.
+            Learn algorithms by exploring them step by step.
           </p>
+          <div className="mt-8 flex justify-center gap-3">
+            <Link href="/algorithms/sorting">
+              <ShimmerButton>Start Visualizing</ShimmerButton>
+            </Link>
+            <Link href="/algorithms/graphs">
+              <button className="btn btn-ghost rounded-full px-5">Explore Graphs</button>
+            </Link>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="mb-14 flex flex-wrap justify-center gap-3"
+        >
+          {['Bubble', 'Quick', 'Merge', 'Heap', 'Dijkstra', 'A*', 'Prim', 'OSRM'].map((item) => (
+            <span
+              key={item}
+              className="rounded-full border border-cyan-300/35 bg-cyan-500/10 px-3 py-1 text-xs font-semibold tracking-wide text-cyan-100"
+            >
+              {item}
+            </span>
+          ))}
         </motion.div>
 
         {/* Feature Cards */}
@@ -92,7 +118,7 @@ export default function Home() {
             return (
               <motion.div key={feature.title} variants={itemVariants}>
                 <Link href={feature.href}>
-                  <div className="group card-hover h-full p-8 cursor-pointer">
+                  <SpotlightCard className="group h-full cursor-pointer">
                     <div className={`inline-flex p-3 rounded-lg bg-gradient-to-br ${feature.color} mb-4`}>
                       <Icon className="w-6 h-6 text-white" />
                     </div>
@@ -104,7 +130,7 @@ export default function Home() {
                       <span>Explore</span>
                       <ArrowRightIcon className="w-4 h-4" />
                     </div>
-                  </div>
+                  </SpotlightCard>
                 </Link>
               </motion.div>
             );

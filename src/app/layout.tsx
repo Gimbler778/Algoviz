@@ -27,7 +27,7 @@ export default function RootLayout({
           <main>{children}</main>
 
           <footer className="border-t border-white/10 bg-black/20 py-6 text-center text-sm text-slate-400">
-            Algoviz Atlas - Interactive algorithm maps and visual journeys
+            Algoviz - Developed by Gimbler
           </footer>
         </div>
       </body>

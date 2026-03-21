@@ -4,11 +4,11 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { motion } from 'framer-motion';
 import { PlayIcon, PauseIcon, RotateCcwIcon } from 'lucide-react';
 import { Graph } from '@/lib/types';
-import { bfs, dfs, dijkstra, GraphStep } from '@/lib/algorithms/graphs';
+import { bfs, dfs, dijkstra, aStar, prim, GraphStep } from '@/lib/algorithms/graphs';
 
 interface GraphVisualizerProps {
   initialGraph: Graph;
-  algorithm: 'bfs' | 'dfs' | 'dijkstra';
+  algorithm: 'bfs' | 'dfs' | 'dijkstra' | 'astar' | 'prim';
   algorithmName: string;
 }
 
@@ -77,13 +77,13 @@ export default function GraphVisualizer({
     const nodeRadius = 12;
 
     // Draw edges
-    ctx.strokeStyle = 'rgba(96, 165, 250, 0.62)';
-    ctx.lineWidth = 2.2;
     graphData.edges.forEach((edge) => {
       const fromNode = graphData.nodes.find((n) => n.id === edge.from);
       const toNode = graphData.nodes.find((n) => n.id === edge.to);
 
       if (fromNode && toNode) {
+        ctx.strokeStyle = edge.visited ? '#34d399' : 'rgba(96, 165, 250, 0.62)';
+        ctx.lineWidth = edge.visited ? 3.2 : 2.2;
         ctx.beginPath();
         ctx.moveTo(fromNode.x, fromNode.y);
         ctx.lineTo(toNode.x, toNode.y);
@@ -135,6 +135,10 @@ export default function GraphVisualizer({
         return dfs;
       case 'dijkstra':
         return dijkstra;
+      case 'astar':
+        return aStar;
+      case 'prim':
+        return prim;
       default:
         return bfs;
     }

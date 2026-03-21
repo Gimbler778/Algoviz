@@ -3,11 +3,32 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { PlayIcon, PauseIcon, RotateCcwIcon } from 'lucide-react';
-import { bubbleSort, quickSort, mergeSort, selectionSort, insertionSort, heapSort } from '@/lib/algorithms/sorting';
+import {
+  bubbleSort,
+  quickSort,
+  mergeSort,
+  selectionSort,
+  insertionSort,
+  heapSort,
+  shellSort,
+  cocktailSort,
+  countingSort,
+  radixSort,
+} from '@/lib/algorithms/sorting';
 import { AlgorithmStep } from '@/lib/types';
 
 interface SortingVisualizerProps {
-  algorithm: 'bubble' | 'quick' | 'merge' | 'selection' | 'insertion' | 'heap';
+  algorithm:
+    | 'bubble'
+    | 'quick'
+    | 'merge'
+    | 'selection'
+    | 'insertion'
+    | 'heap'
+    | 'shell'
+    | 'cocktail'
+    | 'counting'
+    | 'radix';
   algorithmName: string;
   complexity: {
     best: string;
@@ -74,6 +95,14 @@ export default function SortingVisualizer({
         return insertionSort;
       case 'heap':
         return heapSort;
+      case 'shell':
+        return shellSort;
+      case 'cocktail':
+        return cocktailSort;
+      case 'counting':
+        return countingSort;
+      case 'radix':
+        return radixSort;
       default:
         return bubbleSort;
     }

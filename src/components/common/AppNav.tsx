@@ -19,7 +19,7 @@ export default function AppNav() {
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
         <Link href="/" className="group inline-flex items-center gap-3">
           <span className="inline-block h-3 w-3 rounded-full bg-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.8)]" />
-          <span className="text-xl font-semibold tracking-tight text-white">Algoviz Atlas</span>
+          <span className="text-xl font-semibold tracking-tight text-white">Algoviz</span>
         </Link>
 
         <nav className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 p-1">

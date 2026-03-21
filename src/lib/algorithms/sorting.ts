@@ -299,3 +299,189 @@ export async function heapSort(
 
   return { array: arr, stats: { comparisons, swaps } };
 }
+
+// Shell Sort
+export async function shellSort(
+  array: number[],
+  onStep: (step: AlgorithmStep) => Promise<void>
+): Promise<{ array: number[]; stats: { comparisons: number; swaps: number } }> {
+  const arr = [...array];
+  let comparisons = 0;
+  let swaps = 0;
+
+  for (let gap = Math.floor(arr.length / 2); gap > 0; gap = Math.floor(gap / 2)) {
+    for (let i = gap; i < arr.length; i++) {
+      const temp = arr[i];
+      let j = i;
+
+      while (j >= gap && arr[j - gap] > temp) {
+        comparisons++;
+        arr[j] = arr[j - gap];
+        swaps++;
+        j -= gap;
+
+        await onStep({
+          array: arr,
+          indices: { comparing: [j, j + gap], active: [i] },
+          description: `Gap ${gap}: shifting ${arr[j + gap]} to position ${j + gap}`,
+          comparisons,
+          swaps,
+        });
+      }
+
+      arr[j] = temp;
+      await onStep({
+        array: arr,
+        indices: { active: [j] },
+        description: `Placed ${temp} at index ${j} with gap ${gap}`,
+        comparisons,
+        swaps,
+      });
+    }
+  }
+
+  return { array: arr, stats: { comparisons, swaps } };
+}
+
+// Cocktail Sort
+export async function cocktailSort(
+  array: number[],
+  onStep: (step: AlgorithmStep) => Promise<void>
+): Promise<{ array: number[]; stats: { comparisons: number; swaps: number } }> {
+  const arr = [...array];
+  let comparisons = 0;
+  let swaps = 0;
+  let start = 0;
+  let end = arr.length - 1;
+  let swapped = true;
+
+  while (swapped) {
+    swapped = false;
+
+    for (let i = start; i < end; i++) {
+      comparisons++;
+
+      await onStep({
+        array: arr,
+        indices: { comparing: [i, i + 1] },
+        description: `Forward pass: comparing ${arr[i]} and ${arr[i + 1]}`,
+        comparisons,
+        swaps,
+      });
+
+      if (arr[i] > arr[i + 1]) {
+        [arr[i], arr[i + 1]] = [arr[i + 1], arr[i]];
+        swaps++;
+        swapped = true;
+      }
+    }
+
+    if (!swapped) break;
+    swapped = false;
+    end--;
+
+    for (let i = end - 1; i >= start; i--) {
+      comparisons++;
+
+      await onStep({
+        array: arr,
+        indices: { comparing: [i, i + 1] },
+        description: `Backward pass: comparing ${arr[i]} and ${arr[i + 1]}`,
+        comparisons,
+        swaps,
+      });
+
+      if (arr[i] > arr[i + 1]) {
+        [arr[i], arr[i + 1]] = [arr[i + 1], arr[i]];
+        swaps++;
+        swapped = true;
+      }
+    }
+
+    start++;
+  }
+
+  return { array: arr, stats: { comparisons, swaps } };
+}
+
+// Counting Sort
+export async function countingSort(
+  array: number[],
+  onStep: (step: AlgorithmStep) => Promise<void>
+): Promise<{ array: number[]; stats: { comparisons: number; swaps: number } }> {
+  const arr = [...array];
+  let comparisons = 0;
+  let swaps = 0;
+
+  const maxVal = Math.max(...arr);
+  const minVal = Math.min(...arr);
+  const range = maxVal - minVal + 1;
+  const count = new Array(range).fill(0);
+
+  for (let i = 0; i < arr.length; i++) {
+    count[arr[i] - minVal]++;
+    comparisons++;
+
+    await onStep({
+      array: arr,
+      indices: { active: [i] },
+      description: `Counting value ${arr[i]}`,
+      comparisons,
+      swaps,
+    });
+  }
+
+  let idx = 0;
+  for (let i = 0; i < range; i++) {
+    while (count[i] > 0) {
+      arr[idx] = i + minVal;
+      count[i]--;
+      swaps++;
+
+      await onStep({
+        array: arr,
+        indices: { sorted: Array.from({ length: idx + 1 }, (_, k) => k) },
+        description: `Placing ${arr[idx]} at index ${idx}`,
+        comparisons,
+        swaps,
+      });
+
+      idx++;
+    }
+  }
+
+  return { array: arr, stats: { comparisons, swaps } };
+}
+
+// Radix Sort (base 10)
+export async function radixSort(
+  array: number[],
+  onStep: (step: AlgorithmStep) => Promise<void>
+): Promise<{ array: number[]; stats: { comparisons: number; swaps: number } }> {
+  let arr = [...array];
+  let comparisons = 0;
+  let swaps = 0;
+  const maxVal = Math.max(...arr);
+
+  for (let exp = 1; Math.floor(maxVal / exp) > 0; exp *= 10) {
+    const buckets: number[][] = Array.from({ length: 10 }, () => []);
+
+    for (let i = 0; i < arr.length; i++) {
+      const digit = Math.floor(arr[i] / exp) % 10;
+      buckets[digit].push(arr[i]);
+      comparisons++;
+    }
+
+    arr = buckets.flat();
+    swaps += arr.length;
+
+    await onStep({
+      array: arr,
+      description: `Processed digit place ${exp}`,
+      comparisons,
+      swaps,
+    });
+  }
+
+  return { array: arr, stats: { comparisons, swaps } };
+}

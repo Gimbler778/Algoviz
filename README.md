@@ -13,12 +13,14 @@ A comprehensive web application for visualizing and learning sorting algorithms,
 
 ## Tech Stack
 
-- **Frontend Framework**: Next.js 15 with React 18
+- **Frontend Framework**: Next.js 14 with React 18
 - **Language**: TypeScript
-- **Styling**: Tailwind CSS with custom animations
-- **UI Components**: shadcn/ui, Lucide React icons
+- **Styling**: Tailwind CSS with custom interactive UI components
+- **UI Components**: Custom magic/shadcn-inspired components, Lucide React icons
 - **Animations**: Framer Motion, GSAP
-- **Charts & Graphs**: Recharts
+- **Map UI**: Leaflet + React Leaflet
+- **Routing Engines**: GraphHopper / OSRM
+- **Map Data**: OpenStreetMap
 - **Deployment**: Vercel (free tier optimized)
 
 ## Installation
@@ -94,7 +96,7 @@ src/
 ## Features Breakdown
 
 ### 1. Sorting Visualizer
-- **Algorithms**: Bubble Sort, Selection Sort, Insertion Sort, Merge Sort, Quick Sort, Heap Sort
+- **Algorithms**: Bubble, Selection, Insertion, Merge, Quick, Heap, Shell, Cocktail, Counting, Radix
 - **Controls**: 
   - Play/Pause/Reset buttons
   - Speed control (1-100%)
@@ -102,8 +104,8 @@ src/
   - Real-time statistics display
 
 ### 2. Graph Visualizer
-- **Algorithms**: BFS, DFS, Dijkstra's Algorithm
-- **Graph Types**: Simple (unweighted) and Weighted graphs
+- **Algorithms**: BFS, DFS, Dijkstra, A*, Prim's MST
+- **Graph Types**: World/Europe city networks + real map routing mode
 - **Features**:
   - Visual node highlighting
   - Visited order tracking
@@ -124,6 +126,34 @@ src/
 - **Expandable Cards**: Easy-to-read accordion layout
 
 ## Deployment on Vercel (Free Tier)
+
+## Real Map Routing Setup (GraphHopper + OSRM + OSM)
+
+1. **Install dependencies** (already included)
+```bash
+npm install
+```
+
+2. **Create env file**
+```bash
+cp .env.example .env.local
+```
+
+3. **Add GraphHopper API key** to `.env.local`
+```bash
+GRAPHHOPPER_API_KEY=your_graphhopper_api_key
+```
+
+4. **Run app**
+```bash
+npm run dev
+```
+
+5. **Use Graphs page**
+- `City Graph Visualizer` tab for algorithm simulations
+- `Real Road Routing (Leaflet)` tab for map route engine calls
+- `OSRM` works without key (public endpoint)
+- `GraphHopper` requires your API key
 
 ### Quick Start with GitHub
 
@@ -175,7 +205,7 @@ git push -u origin main
 
 ## Configuration Files
 
-- `next.config.ts` - Next.js configuration
+- `next.config.js` - Next.js configuration
 - `tailwind.config.ts` - Tailwind CSS configuration
 - `tsconfig.json` - TypeScript configuration
 - `postcss.config.js` - PostCSS configuration
@@ -192,8 +222,7 @@ This project is open source and available under the MIT License.
 
 ## Future Enhancements
 
-- [ ] Add more sorting algorithms (Radix Sort, Counting Sort, etc.)
-- [ ] Add more graph algorithms (A*, Prim's, Kruskal's)
+- [ ] Add more graph algorithms (Kruskal's, Bellman-Ford)
 - [ ] Dynamic graph generation
 - [ ] Multi-language support
 - [ ] Sound effects for sorting steps

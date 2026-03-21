@@ -4,7 +4,17 @@ import { useState } from 'react';
 import SortingVisualizer from '@/components/visualizers/SortingVisualizer';
 import { motion } from 'framer-motion';
 
-type Algorithm = 'bubble' | 'quick' | 'merge' | 'selection' | 'insertion' | 'heap';
+type Algorithm =
+  | 'bubble'
+  | 'quick'
+  | 'merge'
+  | 'selection'
+  | 'insertion'
+  | 'heap'
+  | 'shell'
+  | 'cocktail'
+  | 'counting'
+  | 'radix';
 
 interface AlgorithmInfo {
   id: Algorithm;
@@ -55,6 +65,30 @@ const algorithms: AlgorithmInfo[] = [
     description: 'Uses a heap data structure to sort elements by repeatedly extracting the maximum element and placing it at the end.',
     complexity: { best: 'O(n log n)', average: 'O(n log n)', worst: 'O(n log n)', space: 'O(1)' },
   },
+  {
+    id: 'shell',
+    name: 'Shell Sort',
+    description: 'Generalized insertion sort using decreasing gaps to move elements quickly toward their final positions.',
+    complexity: { best: 'O(n log n)', average: 'O(n^1.5)', worst: 'O(n²)', space: 'O(1)' },
+  },
+  {
+    id: 'cocktail',
+    name: 'Cocktail Sort',
+    description: 'Bidirectional bubble sort that traverses both left-to-right and right-to-left in each iteration.',
+    complexity: { best: 'O(n)', average: 'O(n²)', worst: 'O(n²)', space: 'O(1)' },
+  },
+  {
+    id: 'counting',
+    name: 'Counting Sort',
+    description: 'Non-comparison sort that counts occurrences of each value, then reconstructs a sorted array.',
+    complexity: { best: 'O(n + k)', average: 'O(n + k)', worst: 'O(n + k)', space: 'O(k)' },
+  },
+  {
+    id: 'radix',
+    name: 'Radix Sort',
+    description: 'Sorts numbers digit by digit from least significant to most significant using stable buckets.',
+    complexity: { best: 'O(d(n + b))', average: 'O(d(n + b))', worst: 'O(d(n + b))', space: 'O(n + b)' },
+  },
 ];
 
 export default function SortingPage() {
@@ -67,6 +101,25 @@ export default function SortingPage() {
         <h1 className="mb-8 text-4xl font-bold bg-gradient-to-r from-cyan-300 to-sky-200 bg-clip-text text-transparent">
           Sorting Algorithms
         </h1>
+
+        <div className="mb-8 overflow-x-auto pb-2">
+          <div className="inline-flex gap-2 rounded-full border border-white/15 bg-slate-900/50 p-1">
+            {algorithms.map((algo) => (
+              <button
+                key={`bar-${algo.id}`}
+                onClick={() => setSelectedAlgorithm(algo.id)}
+                className={`whitespace-nowrap rounded-full px-3 py-1.5 text-sm transition ${
+                  selectedAlgorithm === algo.id
+                    ? 'bg-cyan-500/25 text-cyan-100'
+                    : 'text-slate-300 hover:bg-white/10'
+                }`}
+              >
+                {algo.name}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Algorithm Selector */}
         <div className="mb-12">
           <h2 className="text-2xl font-bold text-white mb-6">Choose Algorithm</h2>
