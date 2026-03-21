@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import SpotlightCard from '@/components/ui/SpotlightCard';
 import ShimmerButton from '@/components/ui/ShimmerButton';
+import BrandLogo from '@/components/common/BrandLogo';
+import ScrambleText from '@/components/common/ScrambleText';
 import { 
   ShuffleIcon, 
   GitGraphIcon, 
@@ -73,8 +75,11 @@ export default function Home() {
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
-          <h1 className="text-5xl sm:text-6xl font-bold mb-6 bg-gradient-to-r from-cyan-300 via-sky-200 to-orange-300 bg-clip-text text-transparent">
-            Algoviz
+          <div className="mb-6 flex justify-center">
+            <BrandLogo size="lg" withText={false} />
+          </div>
+          <h1 className="mb-6 text-5xl font-bold tracking-tight sm:text-6xl bg-gradient-to-r from-cyan-200 via-sky-100 to-orange-200 bg-clip-text text-transparent drop-shadow-[0_0_24px_rgba(34,211,238,0.25)]">
+            <ScrambleText text="Algoviz" durationMs={1200} />
           </h1>
           <p className="text-xl text-slate-200/90 max-w-2xl mx-auto">
             Interactive visualizations for sorting, graph traversal, routing, and complexity.
@@ -113,6 +118,9 @@ export default function Home() {
           animate="visible"
           className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16"
         >
+          <div className="md:col-span-2 mb-1 text-center text-2xl font-bold text-cyan-100">
+            <ScrambleText text="Algorithm Modules" durationMs={1100} />
+          </div>
           {features.map((feature) => {
             const Icon = feature.icon;
             return (

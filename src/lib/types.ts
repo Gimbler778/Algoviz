@@ -26,6 +26,7 @@ export interface GraphEdge {
   to: string | number;
   weight?: number;
   visited?: boolean;
+  path?: boolean;
 }
 
 export interface Graph {

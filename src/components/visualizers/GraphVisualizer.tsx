@@ -29,6 +29,7 @@ export default function GraphVisualizer({
   const [cityQuery, setCityQuery] = useState('');
   const [description, setDescription] = useState('Ready to start. Click "Start" to begin.');
   const [startNodeId, setStartNodeId] = useState<string | number>(initialGraph.nodes[0]?.id || 0);
+  const [targetNodeId, setTargetNodeId] = useState<string | number>(initialGraph.nodes[initialGraph.nodes.length - 1]?.id || 0);
 
   useEffect(() => {
     setGraph(initialGraph);
@@ -36,6 +37,7 @@ export default function GraphVisualizer({
     setCityQuery('');
     setDescription('Ready to start. Click "Start" to begin.');
     setStartNodeId(initialGraph.nodes[0]?.id || 0);
+    setTargetNodeId(initialGraph.nodes[initialGraph.nodes.length - 1]?.id || 0);
     setRunning(false);
     setPaused(false);
     pausedRef.current = false;
@@ -82,8 +84,8 @@ export default function GraphVisualizer({
       const toNode = graphData.nodes.find((n) => n.id === edge.to);
 
       if (fromNode && toNode) {
-        ctx.strokeStyle = edge.visited ? '#34d399' : 'rgba(96, 165, 250, 0.62)';
-        ctx.lineWidth = edge.visited ? 3.2 : 2.2;
+        ctx.strokeStyle = edge.path ? '#facc15' : edge.visited ? '#34d399' : 'rgba(96, 165, 250, 0.38)';
+        ctx.lineWidth = edge.path ? 4.6 : edge.visited ? 3.2 : 1.8;
         ctx.beginPath();
         ctx.moveTo(fromNode.x, fromNode.y);
         ctx.lineTo(toNode.x, toNode.y);
@@ -110,8 +112,8 @@ export default function GraphVisualizer({
       ctx.arc(node.x, node.y, nodeRadius, 0, 2 * Math.PI);
       ctx.fillStyle = isVisited ? '#34d399' : '#38bdf8';
       ctx.fill();
-      ctx.strokeStyle = node.id === startNodeId ? '#fb923c' : '#f8fafc';
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = node.id === startNodeId ? '#fb923c' : node.id === targetNodeId ? '#facc15' : '#f8fafc';
+      ctx.lineWidth = node.id === targetNodeId ? 3 : 2;
       ctx.stroke();
 
       // Node label
@@ -121,7 +123,7 @@ export default function GraphVisualizer({
       ctx.textBaseline = 'alphabetic';
       ctx.fillText(String(node.label || node.id), node.x + 15, node.y - 12);
     });
-  }, [visitedOrder, startNodeId]);
+  }, [visitedOrder, startNodeId, targetNodeId]);
 
   useEffect(() => {
     drawGraph(graph);
@@ -166,7 +168,7 @@ export default function GraphVisualizer({
     setVisitedOrder([]);
 
     try {
-      await algorithmFunc(graph, startNodeId, async (step: GraphStep) => {
+      await algorithmFunc(graph, startNodeId, targetNodeId, async (step: GraphStep) => {
         if (stopRef.current) {
           throw new Error('GRAPH_ABORTED');
         }
@@ -197,7 +199,7 @@ export default function GraphVisualizer({
       runningRef.current = false;
       setRunning(false);
     }
-  }, [graph, startNodeId, algorithmFunc]);
+  }, [graph, startNodeId, targetNodeId, algorithmFunc]);
 
   const togglePause = () => {
     const nextPaused = !pausedRef.current;
@@ -225,7 +227,7 @@ export default function GraphVisualizer({
           <p className="text-slate-400 min-h-6">{description}</p>
         </div>
 
-        <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="mb-6 grid grid-cols-1 gap-4">
           <div className="space-y-2">
             <label htmlFor="graph-city-search" className="text-sm font-medium text-slate-300">Search City</label>
             <input
@@ -238,24 +240,45 @@ export default function GraphVisualizer({
               className="w-full rounded-lg border border-white/15 bg-slate-900/50 px-3 py-2 text-slate-100 outline-none transition focus:border-cyan-400"
             />
           </div>
+        </div>
 
+        <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="space-y-2">
-            <label htmlFor="graph-start-city" className="text-sm font-medium text-slate-300">Start City</label>
+            <label htmlFor="graph-source-city" className="text-sm font-medium text-slate-300">Source City</label>
             <select
-              id="graph-start-city"
-              title="Start city"
+              id="graph-source-city"
+              title="Source city"
               value={String(startNodeId)}
               onChange={(e) => {
                 const selected = graph.nodes.find((node) => String(node.id) === e.target.value);
-                if (selected) {
-                  setStartNodeId(selected.id);
-                }
+                if (selected) setStartNodeId(selected.id);
               }}
               disabled={running}
               className="w-full rounded-lg border border-white/15 bg-slate-900/50 px-3 py-2 text-slate-100 outline-none transition focus:border-cyan-400 disabled:opacity-50"
             >
               {cityOptions.map((node) => (
-                <option key={String(node.id)} value={String(node.id)}>
+                <option key={`source-${String(node.id)}`} value={String(node.id)}>
+                  {String(node.label || node.id)}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="graph-target-city" className="text-sm font-medium text-slate-300">Target City</label>
+            <select
+              id="graph-target-city"
+              title="Target city"
+              value={String(targetNodeId)}
+              onChange={(e) => {
+                const selected = graph.nodes.find((node) => String(node.id) === e.target.value);
+                if (selected) setTargetNodeId(selected.id);
+              }}
+              disabled={running}
+              className="w-full rounded-lg border border-white/15 bg-slate-900/50 px-3 py-2 text-slate-100 outline-none transition focus:border-cyan-400 disabled:opacity-50"
+            >
+              {cityOptions.map((node) => (
+                <option key={`target-${String(node.id)}`} value={String(node.id)}>
                   {String(node.label || node.id)}
                 </option>
               ))}

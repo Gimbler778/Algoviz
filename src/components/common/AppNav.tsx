@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import BrandLogo from '@/components/common/BrandLogo';
 
 const navItems = [
   { href: '/', label: 'Home' },
@@ -15,12 +16,9 @@ export default function AppNav() {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-[rgba(11,18,28,0.78)] backdrop-blur-xl">
+    <header className="sticky top-0 z-50 border-b border-cyan-200/10 bg-[linear-gradient(90deg,rgba(4,22,39,0.95),rgba(8,28,47,0.88),rgba(27,22,28,0.8))] backdrop-blur-xl">
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-        <Link href="/" className="group inline-flex items-center gap-3">
-          <span className="inline-block h-3 w-3 rounded-full bg-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.8)]" />
-          <span className="text-xl font-semibold tracking-tight text-white">Algoviz</span>
-        </Link>
+        <BrandLogo size="sm" withText />
 
         <nav className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 p-1">
           {navItems.map((item) => {

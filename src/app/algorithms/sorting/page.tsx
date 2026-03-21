@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import SortingVisualizer from '@/components/visualizers/SortingVisualizer';
 import { motion } from 'framer-motion';
+import ScrambleText from '@/components/common/ScrambleText';
 
 type Algorithm =
   | 'bubble'
@@ -99,7 +100,7 @@ export default function SortingPage() {
     <div className="min-h-[calc(100vh-120px)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h1 className="mb-8 text-4xl font-bold bg-gradient-to-r from-cyan-300 to-sky-200 bg-clip-text text-transparent">
-          Sorting Algorithms
+          <ScrambleText text="Sorting Algorithms" />
         </h1>
 
         <div className="mb-8 overflow-x-auto pb-2">
@@ -122,7 +123,7 @@ export default function SortingPage() {
 
         {/* Algorithm Selector */}
         <div className="mb-12">
-          <h2 className="text-2xl font-bold text-white mb-6">Choose Algorithm</h2>
+          <h2 className="text-2xl font-bold text-white mb-6"><ScrambleText text="Choose Algorithm" durationMs={700} /></h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {algorithms.map((algo) => (
               <motion.button

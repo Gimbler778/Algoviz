@@ -7,16 +7,39 @@ export interface GraphStep {
   description: string;
 }
 
+function edgeKey(edge: Pick<GraphEdge, 'from' | 'to'>): string {
+  return `${edge.from}->${edge.to}`;
+}
+
+function buildPathEdges(
+  prev: Map<string | number, string | number>,
+  target: string | number
+): Set<string> {
+  const path = new Set<string>();
+  let current: string | number | undefined = target;
+
+  while (current !== undefined && prev.has(current)) {
+    const parent = prev.get(current);
+    if (parent === undefined) break;
+    path.add(`${parent}->${current}`);
+    current = parent;
+  }
+
+  return path;
+}
+
 // BFS - Breadth First Search
 export async function bfs(
   graph: Graph,
   startId: string | number,
+  _targetId: string | number | undefined,
   onStep: (step: GraphStep) => Promise<void>
 ): Promise<{ visitedOrder: (string | number)[] }> {
   const visited = new Set<string | number>();
   const queue: (string | number)[] = [startId];
   const visitedOrder: (string | number)[] = [];
   const nodeStates = new Map<string | number, boolean>();
+  const traversedEdges = new Set<string>();
 
   // Initialize node states
   graph.nodes.forEach((node) => {
@@ -36,9 +59,15 @@ export async function bfs(
         visited: nodeStates.get(node.id),
       }));
 
+      const updatedEdges = graph.edges.map((edge) => ({
+        ...edge,
+        visited: traversedEdges.has(edgeKey(edge)),
+        path: false,
+      }));
+
       await onStep({
         nodes: updatedNodes,
-        edges: graph.edges,
+        edges: updatedEdges,
         visitedOrder,
         description: `Visiting node ${currentId}. Queue: [${queue.join(', ')}]`,
       });
@@ -51,6 +80,7 @@ export async function bfs(
       for (const neighbor of neighbors) {
         if (!visited.has(neighbor)) {
           queue.push(neighbor);
+          traversedEdges.add(`${currentId}->${neighbor}`);
         }
       }
 
@@ -65,11 +95,13 @@ export async function bfs(
 export async function dfs(
   graph: Graph,
   startId: string | number,
+  _targetId: string | number | undefined,
   onStep: (step: GraphStep) => Promise<void>
 ): Promise<{ visitedOrder: (string | number)[] }> {
   const visited = new Set<string | number>();
   const visitedOrder: (string | number)[] = [];
   const nodeStates = new Map<string | number, boolean>();
+  const traversedEdges = new Set<string>();
 
   // Initialize node states
   graph.nodes.forEach((node) => {
@@ -88,7 +120,11 @@ export async function dfs(
 
     await onStep({
       nodes: updatedNodes,
-      edges: graph.edges,
+      edges: graph.edges.map((edge) => ({
+        ...edge,
+        visited: traversedEdges.has(edgeKey(edge)),
+        path: false,
+      })),
       visitedOrder,
       description: `Visiting node ${nodeId}. Call stack: [${visitedOrder.join(', ')}]`,
     });
@@ -99,6 +135,7 @@ export async function dfs(
 
     for (const neighbor of neighbors) {
       if (!visited.has(neighbor)) {
+        traversedEdges.add(`${nodeId}->${neighbor}`);
         await dfsHelper(neighbor);
       }
     }
@@ -114,12 +151,15 @@ export async function dfs(
 export async function dijkstra(
   graph: Graph,
   startId: string | number,
+  targetId: string | number | undefined,
   onStep: (step: GraphStep) => Promise<void>
 ): Promise<{ distances: Map<string | number, number>; visitedOrder: (string | number)[] }> {
   const distances = new Map<string | number, number>();
   const visited = new Set<string | number>();
   const visitedOrder: (string | number)[] = [];
   const nodeStates = new Map<string | number, number>();
+  const prev = new Map<string | number, string | number>();
+  const traversedEdges = new Set<string>();
 
   // Initialize distances
   graph.nodes.forEach((node) => {
@@ -152,6 +192,8 @@ export async function dijkstra(
       if (newDistance < (distances.get(edge.to) as number)) {
         distances.set(edge.to, newDistance);
         nodeStates.set(edge.to, newDistance);
+        prev.set(edge.to, currentId);
+        traversedEdges.add(`${currentId}->${edge.to}`);
       }
     }
 
@@ -163,12 +205,36 @@ export async function dijkstra(
 
     await onStep({
       nodes: updatedNodes,
-      edges: graph.edges,
+      edges: graph.edges.map((edge) => ({
+        ...edge,
+        visited: traversedEdges.has(edgeKey(edge)),
+        path: false,
+      })),
       visitedOrder,
       description: `Processing node ${currentId} with distance ${minDistance}`,
     });
 
     await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+
+  const finalTarget = targetId ?? graph.nodes[graph.nodes.length - 1]?.id;
+  if (finalTarget !== undefined && distances.get(finalTarget) !== undefined) {
+    const shortestPathEdges = buildPathEdges(prev, finalTarget);
+
+    await onStep({
+      nodes: graph.nodes.map((node) => ({
+        ...node,
+        visited: visited.has(node.id),
+        distance: distances.get(node.id),
+      })),
+      edges: graph.edges.map((edge) => ({
+        ...edge,
+        visited: traversedEdges.has(edgeKey(edge)),
+        path: shortestPathEdges.has(edgeKey(edge)),
+      })),
+      visitedOrder,
+      description: `Shortest path highlighted to ${finalTarget}.`,
+    });
   }
 
   return { distances, visitedOrder };
@@ -178,6 +244,7 @@ export async function dijkstra(
 export async function aStar(
   graph: Graph,
   startId: string | number,
+  targetId: string | number | undefined,
   onStep: (step: GraphStep) => Promise<void>
 ): Promise<{ distances: Map<string | number, number>; visitedOrder: (string | number)[] }> {
   const distances = new Map<string | number, number>();
@@ -186,13 +253,15 @@ export async function aStar(
   const visitedOrder: (string | number)[] = [];
   const openSet = new Set<string | number>([startId]);
   const closedSet = new Set<string | number>();
-  const targetId = graph.nodes[graph.nodes.length - 1]?.id;
+  const finalTarget = targetId ?? graph.nodes[graph.nodes.length - 1]?.id;
+  const prev = new Map<string | number, string | number>();
+  const traversedEdges = new Set<string>();
 
   const nodeById = new Map<string | number, GraphNode>(graph.nodes.map((node) => [node.id, node]));
 
   const heuristic = (id: string | number) => {
     const current = nodeById.get(id);
-    const target = targetId !== undefined ? nodeById.get(targetId) : undefined;
+    const target = finalTarget !== undefined ? nodeById.get(finalTarget) : undefined;
     if (!current || !target) return 0;
     return Math.hypot(current.x - target.x, current.y - target.y);
   };
@@ -226,6 +295,8 @@ export async function aStar(
         gScore.set(edge.to, tentativeScore);
         distances.set(edge.to, tentativeScore);
         fScore.set(edge.to, tentativeScore + heuristic(edge.to));
+        prev.set(edge.to, currentId);
+        traversedEdges.add(`${currentId}->${edge.to}`);
         openSet.add(edge.to);
       }
     }
@@ -238,12 +309,35 @@ export async function aStar(
 
     await onStep({
       nodes: updatedNodes,
-      edges: graph.edges,
+      edges: graph.edges.map((edge) => ({
+        ...edge,
+        visited: traversedEdges.has(edgeKey(edge)),
+        path: false,
+      })),
       visitedOrder,
       description: `A*: exploring node ${currentId}. Open set size: ${openSet.size}`,
     });
 
     await new Promise((resolve) => setTimeout(resolve, 450));
+  }
+
+  if (finalTarget !== undefined && distances.get(finalTarget) !== undefined) {
+    const shortestPathEdges = buildPathEdges(prev, finalTarget);
+
+    await onStep({
+      nodes: graph.nodes.map((node) => ({
+        ...node,
+        visited: closedSet.has(node.id),
+        distance: distances.get(node.id),
+      })),
+      edges: graph.edges.map((edge) => ({
+        ...edge,
+        visited: traversedEdges.has(edgeKey(edge)),
+        path: shortestPathEdges.has(edgeKey(edge)),
+      })),
+      visitedOrder,
+      description: `A*: shortest path highlighted to ${finalTarget}.`,
+    });
   }
 
   return { distances, visitedOrder };
@@ -253,6 +347,7 @@ export async function aStar(
 export async function prim(
   graph: Graph,
   startId: string | number,
+  _targetId: string | number | undefined,
   onStep: (step: GraphStep) => Promise<void>
 ): Promise<{ visitedOrder: (string | number)[] }> {
   const visited = new Set<string | number>([startId]);

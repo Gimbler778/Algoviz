@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronDownIcon } from 'lucide-react';
+import ScrambleText from '@/components/common/ScrambleText';
 
 interface AlgorithmDetail {
   id: string;
@@ -252,7 +253,7 @@ export default function LearnPage() {
     <div className="min-h-[calc(100vh-120px)]">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-4">Algorithm Explanations</h1>
+          <h1 className="text-4xl font-bold text-white mb-4"><ScrambleText text="Algorithm Explanations" /></h1>
           <p className="text-lg text-slate-300">
             Detailed explanations and pseudocode for common sorting algorithms. Click on any algorithm
             to learn more about how it works.

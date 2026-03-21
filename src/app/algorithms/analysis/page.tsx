@@ -12,6 +12,7 @@ import {
   heapSort,
 } from '@/lib/algorithms/sorting';
 import { AlgorithmStep } from '@/lib/types';
+import ScrambleText from '@/components/common/ScrambleText';
 
 interface AlgorithmStats {
   name: string;
@@ -105,7 +106,7 @@ export default function AnalysisPage() {
     <div className="min-h-[calc(100vh-120px)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h1 className="mb-8 text-4xl font-bold bg-gradient-to-r from-orange-300 to-cyan-300 bg-clip-text text-transparent">
-          Algorithm Analysis
+          <ScrambleText text="Algorithm Analysis" />
         </h1>
         {/* Controls */}
         <div className="card p-8 mb-8">
