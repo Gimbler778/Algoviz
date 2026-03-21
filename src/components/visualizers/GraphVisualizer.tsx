@@ -221,7 +221,7 @@ export default function GraphVisualizer({
 
   return (
     <div className="w-full">
-      <div className="card p-8 mb-8">
+      <div className="card mb-8 p-4 sm:p-8">
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-white mb-2">{algorithmName}</h2>
           <p className="text-slate-400 min-h-6">{description}</p>
@@ -287,12 +287,12 @@ export default function GraphVisualizer({
         </div>
 
         {/* Canvas */}
-        <div className="mb-8 bg-slate-800/50 rounded-lg overflow-hidden">
+        <div className="mb-8 overflow-hidden rounded-lg bg-slate-800/50">
           <canvas
             ref={canvasRef}
             width={980}
             height={520}
-            className="w-full border border-slate-700"
+            className="h-[300px] w-full border border-slate-700 sm:h-[420px] lg:h-[520px]"
           />
         </div>
 
@@ -314,7 +314,7 @@ export default function GraphVisualizer({
         </div>
 
         {/* Controls */}
-        <div className="flex gap-4">
+        <div className="flex flex-wrap gap-3 sm:gap-4">
           <button
             onClick={startAlgorithm}
             disabled={running}

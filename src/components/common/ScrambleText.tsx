@@ -64,5 +64,9 @@ export default function ScrambleText({
     };
   }, [text, durationMs, staggerMs, chars]);
 
-  return <span className={className}>{display}</span>;
+  return (
+    <span className={`inline-block leading-[1.1] pb-[0.08em] ${className}`}>
+      {display}
+    </span>
+  );
 }

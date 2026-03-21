@@ -68,29 +68,29 @@ const itemVariants = {
 export default function Home() {
   return (
     <div className="min-h-[calc(100vh-120px)]">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-center mb-16"
+          className="mb-12 text-center sm:mb-16"
         >
           <div className="mb-6 flex justify-center">
             <BrandLogo size="lg" withText={false} />
           </div>
-          <h1 className="mb-6 text-5xl font-bold tracking-tight sm:text-6xl bg-gradient-to-r from-cyan-200 via-sky-100 to-orange-200 bg-clip-text text-transparent drop-shadow-[0_0_24px_rgba(34,211,238,0.25)]">
+          <h1 className="mb-5 bg-gradient-to-r from-cyan-200 via-sky-100 to-orange-200 bg-clip-text text-4xl font-bold tracking-tight text-transparent drop-shadow-[0_0_24px_rgba(34,211,238,0.25)] sm:mb-6 sm:text-6xl">
             <ScrambleText text="Algoviz" durationMs={1200} />
           </h1>
-          <p className="text-xl text-slate-200/90 max-w-2xl mx-auto">
+          <p className="mx-auto max-w-2xl text-base text-slate-200/90 sm:text-xl">
             Interactive visualizations for sorting, graph traversal, routing, and complexity.
             Learn algorithms by exploring them step by step.
           </p>
-          <div className="mt-8 flex justify-center gap-3">
+          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Link href="/algorithms/sorting">
-              <ShimmerButton>Start Visualizing</ShimmerButton>
+              <ShimmerButton className="w-full justify-center sm:w-auto">Start Visualizing</ShimmerButton>
             </Link>
             <Link href="/algorithms/graphs">
-              <button className="btn btn-ghost rounded-full px-5">Explore Graphs</button>
+              <button className="btn btn-ghost w-full rounded-full px-5 sm:w-auto">Explore Graphs</button>
             </Link>
           </div>
         </motion.div>
@@ -150,7 +150,7 @@ export default function Home() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="grid grid-cols-3 gap-8 text-center mb-16"
+          className="mb-16 grid grid-cols-1 gap-4 text-center sm:grid-cols-3 sm:gap-8"
         >
           <div className="card p-6">
             <div className="text-4xl font-bold text-cyan-300 mb-2">10+</div>

@@ -89,7 +89,7 @@ export default function RoadRoutingMap() {
   };
 
   return (
-    <div className="card p-6 space-y-5">
+    <div className="card space-y-5 p-4 sm:p-6">
       <div className="flex flex-wrap items-center gap-3">
         <div className="inline-flex rounded-full border border-white/15 bg-slate-900/55 p-1">
           {(['osrm', 'graphhopper'] as Engine[]).map((option) => (
@@ -119,12 +119,12 @@ export default function RoadRoutingMap() {
           ))}
         </div>
 
-        <button className="btn btn-primary" onClick={requestRoute} disabled={loading}>
+        <button className="btn btn-primary w-full sm:w-auto" onClick={requestRoute} disabled={loading}>
           {loading ? 'Routing...' : 'Calculate Route'}
         </button>
 
         <button
-          className="btn btn-ghost"
+          className="btn btn-ghost w-full sm:w-auto"
           onClick={() => {
             setStart(null);
             setEnd(null);
@@ -141,7 +141,7 @@ export default function RoadRoutingMap() {
       </p>
 
       <div className="overflow-hidden rounded-xl border border-white/15">
-        <MapContainer center={center} zoom={2} scrollWheelZoom className="h-[460px] w-full">
+        <MapContainer center={center} zoom={2} scrollWheelZoom className="h-[320px] w-full sm:h-[460px]">
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

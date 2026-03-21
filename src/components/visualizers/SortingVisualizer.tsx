@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
 import { PlayIcon, PauseIcon, RotateCcwIcon } from 'lucide-react';
 import {
   bubbleSort,
@@ -46,6 +45,7 @@ export default function SortingVisualizer({
   const pausedRef = useRef(false);
   const runningRef = useRef(false);
   const stopRef = useRef(false);
+  const lastRenderRef = useRef(0);
 
   const [array, setArray] = useState<number[]>([]);
   const [sorting, setSorting] = useState(false);
@@ -120,8 +120,10 @@ export default function SortingVisualizer({
 
     const startTime = performance.now();
     const initialArray = [...array];
+    lastRenderRef.current = 0;
 
     let currentStats = { comparisons: 0, swaps: 0 };
+    const frameDelayMs = Math.max(12, Math.round(105 - speed));
 
     try {
       await sortFunc(initialArray, async (step: AlgorithmStep) => {
@@ -137,6 +139,18 @@ export default function SortingVisualizer({
           throw new Error('SORT_ABORTED');
         }
 
+        if (step.comparisons !== undefined) currentStats.comparisons = step.comparisons;
+        if (step.swaps !== undefined) currentStats.swaps = step.swaps;
+
+        const now = performance.now();
+        const shouldRender = now - lastRenderRef.current >= frameDelayMs;
+
+        if (!shouldRender) {
+          return;
+        }
+
+        lastRenderRef.current = now;
+
         setArray(step.array || initialArray);
         setHighlightedIndices({
           comparing: step.indices?.comparing ?? [],
@@ -144,20 +158,21 @@ export default function SortingVisualizer({
           active: step.indices?.active ?? [],
         });
         setDescription(step.description);
+        setStats({
+          ...currentStats,
+          time: Math.round(now - startTime),
+        });
 
-        if (step.comparisons !== undefined) currentStats.comparisons = step.comparisons;
-        if (step.swaps !== undefined) currentStats.swaps = step.swaps;
+        await new Promise((resolve) => setTimeout(resolve, frameDelayMs));
+      });
 
+      if (!stopRef.current) {
+        setArray([...initialArray]);
+        setDescription('Sorting complete!');
         setStats({
           ...currentStats,
           time: Math.round(performance.now() - startTime),
         });
-
-        await new Promise((resolve) => setTimeout(resolve, 101 - speed));
-      });
-
-      if (!stopRef.current) {
-        setDescription('Sorting complete!');
       }
     } catch (error) {
       if (error instanceof Error && error.message !== 'SORT_ABORTED') {
@@ -200,14 +215,14 @@ export default function SortingVisualizer({
   return (
     <div className="w-full">
       {/* Visualizer */}
-      <div className="card p-8 mb-8">
+      <div className="card mb-8 p-4 sm:p-8">
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-white mb-2">{algorithmName}</h2>
           <p className="text-slate-400">{description}</p>
         </div>
 
         {/* Array Visualization */}
-        <div className="flex items-end justify-center gap-1 h-80 bg-slate-800/50 rounded-lg p-4 mb-8">
+        <div className="mb-8 flex h-56 items-end justify-center gap-1 rounded-lg bg-slate-800/50 p-2 sm:h-80 sm:p-4">
           {array.map((value, idx) => {
             let color = 'bg-blue-500';
             if (highlightedIndices.sorted.includes(idx)) color = 'bg-green-500';
@@ -215,25 +230,21 @@ export default function SortingVisualizer({
             else if (highlightedIndices.active.includes(idx)) color = 'bg-yellow-500';
 
             return (
-              <motion.div
+              <div
                 key={idx}
-                layout
-                animate={{
-                  height: `${(value / maxValue) * 100}%`,
-                }}
-                transition={{ duration: 0.2 }}
-                className={`flex-1 rounded-t ${color} hover:opacity-75 transition relative group`}
+                className={`group relative flex-1 rounded-t ${color} transition-[height,opacity,background-color] duration-150 hover:opacity-75`}
+                style={{ height: `${(value / maxValue) * 100}%` }}
               >
-                <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs text-slate-300 opacity-0 group-hover:opacity-100 transition">
+                <div className="absolute -top-6 left-1/2 hidden -translate-x-1/2 transform text-xs text-slate-300 opacity-0 transition group-hover:opacity-100 sm:block">
                   {value}
                 </div>
-              </motion.div>
+              </div>
             );
           })}
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-4 mb-8">
+        <div className="mb-8 grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
           <div className="card p-4 text-center">
             <div className="text-2xl font-bold text-blue-400">{stats.comparisons}</div>
             <div className="text-sm text-slate-400">Comparisons</div>
@@ -251,7 +262,7 @@ export default function SortingVisualizer({
         {/* Controls */}
         <div className="space-y-6">
           {/* Buttons */}
-          <div className="flex gap-4">
+          <div className="flex flex-wrap gap-3 sm:gap-4">
             <button
               onClick={startSorting}
               disabled={sorting}
@@ -318,9 +329,9 @@ export default function SortingVisualizer({
       </div>
 
       {/* Complexity Analysis */}
-      <div className="card p-8">
+      <div className="card p-4 sm:p-8">
         <h3 className="text-xl font-bold text-white mb-6">Complexity Analysis</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           <div>
             <div className="text-sm text-slate-400 mb-2">Best Case</div>
             <div className="text-lg font-mono text-green-400">{complexity.best}</div>

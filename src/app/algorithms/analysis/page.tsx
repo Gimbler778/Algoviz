@@ -105,18 +105,18 @@ export default function AnalysisPage() {
   return (
     <div className="min-h-[calc(100vh-120px)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="mb-8 text-4xl font-bold bg-gradient-to-r from-orange-300 to-cyan-300 bg-clip-text text-transparent">
+        <h1 className="mb-8 bg-gradient-to-r from-orange-300 to-cyan-300 bg-clip-text text-3xl font-bold text-transparent sm:text-4xl">
           <ScrambleText text="Algorithm Analysis" />
         </h1>
         {/* Controls */}
-        <div className="card p-8 mb-8">
-          <h2 className="text-2xl font-bold text-white mb-6">Performance Comparison</h2>
-          <p className="text-slate-400 mb-6">
+        <div className="card mb-8 p-4 sm:p-8">
+          <h2 className="mb-6 text-2xl font-bold text-white">Performance Comparison</h2>
+          <p className="mb-6 text-slate-400">
             This tool compares the performance of different sorting algorithms across various array sizes.
             It measures comparisons, swaps, and execution time.
           </p>
 
-          <div className="flex gap-4 mb-6">
+          <div className="mb-6 flex flex-wrap gap-3 sm:gap-4">
             <button
               onClick={runAnalysis}
               disabled={running}
@@ -163,16 +163,16 @@ export default function AnalysisPage() {
             className="space-y-8"
           >
             {/* Comparisons by Size */}
-            <div className="card p-8">
-              <h3 className="text-xl font-bold text-white mb-6">Comparisons by Array Size</h3>
+            <div className="card p-4 sm:p-8">
+              <h3 className="mb-6 text-xl font-bold text-white">Comparisons by Array Size</h3>
               <div className="space-y-8">
                 {[50, 100, 200, 300].map((size) => (
                   <div key={size}>
                     <div className="text-sm font-semibold text-slate-300 mb-3">Size: {size} elements</div>
                     <div className="space-y-2">
                       {dataBySize[size].map((data, idx) => (
-                        <div key={data.name} className="flex items-center gap-3">
-                          <div className="w-32 text-sm text-slate-400">{data.name}</div>
+                        <div key={data.name} className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+                          <div className="text-sm text-slate-400 sm:w-32">{data.name}</div>
                           <div className="flex-1">
                             <motion.div
                               initial={{ width: 0 }}
@@ -202,16 +202,16 @@ export default function AnalysisPage() {
             </div>
 
             {/* Execution Time by Size */}
-            <div className="card p-8">
-              <h3 className="text-xl font-bold text-white mb-6">Execution Time by Array Size (ms)</h3>
+            <div className="card p-4 sm:p-8">
+              <h3 className="mb-6 text-xl font-bold text-white">Execution Time by Array Size (ms)</h3>
               <div className="space-y-8">
                 {[50, 100, 200, 300].map((size) => (
                   <div key={size}>
                     <div className="text-sm font-semibold text-slate-300 mb-3">Size: {size} elements</div>
                     <div className="space-y-2">
                       {dataBySize[size].map((data, idx) => (
-                        <div key={data.name} className="flex items-center gap-3">
-                          <div className="w-32 text-sm text-slate-400">{data.name}</div>
+                        <div key={data.name} className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+                          <div className="text-sm text-slate-400 sm:w-32">{data.name}</div>
                           <div className="flex-1">
                             <motion.div
                               initial={{ width: 0 }}
@@ -241,8 +241,8 @@ export default function AnalysisPage() {
             </div>
 
             {/* Data Table */}
-            <div className="card p-8">
-              <h3 className="text-xl font-bold text-white mb-6">Detailed Results</h3>
+            <div className="card p-4 sm:p-8">
+              <h3 className="mb-6 text-xl font-bold text-white">Detailed Results</h3>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
