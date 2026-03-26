@@ -15,8 +15,8 @@ const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 export default function ScrambleText({
   text,
   className = '',
-  durationMs = 900,
-  staggerMs = 24,
+  durationMs = 200,
+  staggerMs = 10,
 }: ScrambleTextProps) {
   const [display, setDisplay] = useState(text);
   const tweenRef = useRef<gsap.core.Tween | null>(null);

@@ -8,6 +8,7 @@ import ScrambleText from '@/components/common/ScrambleText';
 interface AlgorithmDetail {
   id: string;
   name: string;
+  category: 'sorting' | 'graph';
   description: string;
   pseudocode: string;
   complexity: {
@@ -23,6 +24,7 @@ const algorithms: AlgorithmDetail[] = [
   {
     id: 'bubble',
     name: 'Bubble Sort',
+    category: 'sorting',
     description:
       'Bubble sort is a simple sorting algorithm that repeatedly steps through the list, compares adjacent elements and swaps them if they are in the wrong order. The pass through the list is repeated until the list is sorted.',
     pseudocode: `procedure bubbleSort(A : list of sortable items)
@@ -61,6 +63,7 @@ end procedure`,
   {
     id: 'insertion',
     name: 'Insertion Sort',
+    category: 'sorting',
     description:
       'Insertion sort builds the sorted array one item at a time. It iterates through an input array, and for each element, it finds the place it should be inserted in the sorted part and inserts it there.',
     pseudocode: `procedure insertionSort(A : list of sortable items)
@@ -100,6 +103,7 @@ end procedure`,
   {
     id: 'selection',
     name: 'Selection Sort',
+    category: 'sorting',
     description:
       'Selection sort divides the input into sorted and unsorted regions. It repeatedly finds the minimum element from the unsorted region and moves it to the sorted region.',
     pseudocode: `procedure selectionSort(A : list of sortable items)
@@ -139,6 +143,7 @@ end procedure`,
   {
     id: 'merge',
     name: 'Merge Sort',
+    category: 'sorting',
     description:
       'Merge sort is a divide-and-conquer algorithm that divides the array into halves, recursively sorts them, and then merges the sorted halves back together.',
     pseudocode: `procedure mergeSort(A : list of sortable items)
@@ -176,6 +181,7 @@ end procedure`,
   {
     id: 'quick',
     name: 'Quick Sort',
+    category: 'sorting',
     description:
       'Quick sort is a divide-and-conquer algorithm that works by selecting a pivot element and partitioning the array around it, then recursively sorting the sub-arrays.',
     pseudocode: `procedure quickSort(A : list of sortable items, low, high)
@@ -212,6 +218,7 @@ end procedure`,
   {
     id: 'heap',
     name: 'Heap Sort',
+    category: 'sorting',
     description:
       'Heap sort uses a heap data structure to sort elements. It builds a heap from the data, then repeatedly extracts the maximum element and places it at the end of the sorted array.',
     pseudocode: `procedure heapSort(A : list of sortable items)
@@ -244,6 +251,217 @@ end procedure`,
       'Slower than quick sort in practice',
     ],
   },
+  {
+    id: 'bfs',
+    name: 'Breadth-First Search (BFS)',
+    category: 'graph',
+    description:
+      'BFS explores a graph in layers using a queue. It visits all neighbors of a node before moving deeper, which makes it ideal for shortest path in unweighted graphs.',
+    pseudocode: `procedure BFS(G, source)
+  create empty queue Q
+  mark source as visited
+  enqueue source into Q
+
+  while Q is not empty do
+    u := dequeue Q
+    for each neighbor v of u do
+      if v is not visited then
+        mark v as visited
+        enqueue v into Q
+      end if
+    end for
+  end while
+end procedure`,
+    complexity: {
+      time: 'O(V + E)',
+      space: 'O(V)',
+    },
+    keyPoints: [
+      'Uses a queue data structure',
+      'Layer-by-layer traversal order',
+      'Finds shortest path by edge count in unweighted graphs',
+      'Common in web crawling and connectivity checks',
+    ],
+    advantages: [
+      'Simple and deterministic traversal order',
+      'Shortest path in unweighted graphs',
+      'Works well for level-order exploration',
+    ],
+    disadvantages: [
+      'High memory on wide graphs',
+      'Not weighted-distance optimal',
+      'Can explore many irrelevant nodes',
+    ],
+  },
+  {
+    id: 'dfs',
+    name: 'Depth-First Search (DFS)',
+    category: 'graph',
+    description:
+      'DFS explores as deep as possible before backtracking, typically with recursion or an explicit stack. It is useful for cycle detection, topological reasoning, and component analysis.',
+    pseudocode: `procedure DFS(G, source)
+  mark source as visited
+  for each neighbor v of source do
+    if v is not visited then
+      DFS(G, v)
+    end if
+  end for
+end procedure`,
+    complexity: {
+      time: 'O(V + E)',
+      space: 'O(V)',
+    },
+    keyPoints: [
+      'Uses recursion or stack',
+      'Goes deep before exploring siblings',
+      'Useful for cycle detection and connected components',
+      'Foundation for many graph decompositions',
+    ],
+    advantages: [
+      'Low implementation complexity',
+      'Great for structural graph analysis',
+      'Good when deep paths matter',
+    ],
+    disadvantages: [
+      'Does not guarantee shortest path',
+      'Recursion depth can overflow on huge graphs',
+      'Traversal order depends on adjacency ordering',
+    ],
+  },
+  {
+    id: 'dijkstra',
+    name: "Dijkstra's Algorithm",
+    category: 'graph',
+    description:
+      'Dijkstra computes the shortest path from a source to all vertices in a graph with non-negative edge weights by repeatedly expanding the current minimum-distance frontier.',
+    pseudocode: `procedure Dijkstra(G, source)
+  dist[source] := 0
+  for each vertex v != source do
+    dist[v] := infinity
+  end for
+
+  use min-priority queue PQ with (distance, vertex)
+  insert (0, source)
+
+  while PQ not empty do
+    (d, u) := extract-min PQ
+    for each edge (u, v, w) do
+      if d + w < dist[v] then
+        dist[v] := d + w
+        update/increase-priority for v in PQ
+      end if
+    end for
+  end while
+end procedure`,
+    complexity: {
+      time: 'O((V + E) log V) with binary heap',
+      space: 'O(V)',
+    },
+    keyPoints: [
+      'Requires non-negative weights',
+      'Uses greedy frontier expansion',
+      'Outputs shortest distances and predecessor tree',
+      'Core algorithm for road/pathfinding systems',
+    ],
+    advantages: [
+      'Optimal shortest paths with valid weights',
+      'Well-understood and widely deployed',
+      'Works for sparse and dense graphs',
+    ],
+    disadvantages: [
+      'Fails with negative weight edges',
+      'Can still explore many nodes on large maps',
+      'Priority-queue maintenance overhead',
+    ],
+  },
+  {
+    id: 'astar',
+    name: 'A* Search',
+    category: 'graph',
+    description:
+      'A* is an informed shortest-path algorithm that combines cost-so-far g(n) with a heuristic h(n) to prioritize nodes likely to reach the goal quickly.',
+    pseudocode: `procedure A*(G, source, goal)
+  openSet := {source}
+  g[source] := 0
+  f[source] := h(source)
+
+  while openSet not empty do
+    u := node in openSet with minimum f
+    if u = goal then return reconstructed path
+
+    remove u from openSet
+    for each edge (u, v, w) do
+      tentative := g[u] + w
+      if tentative < g[v] then
+        parent[v] := u
+        g[v] := tentative
+        f[v] := g[v] + h(v)
+        add v to openSet
+      end if
+    end for
+  end while
+end procedure`,
+    complexity: {
+      time: 'Best depends on heuristic, worst often O((V + E) log V)',
+      space: 'O(V)',
+    },
+    keyPoints: [
+      'Heuristic-guided search',
+      'Optimal if heuristic is admissible and consistent',
+      'Often explores fewer nodes than Dijkstra',
+      'Standard in game and navigation AI',
+    ],
+    advantages: [
+      'Typically faster than uninformed shortest-path search',
+      'Retains optimality with valid heuristic',
+      'Highly practical for target-focused routing',
+    ],
+    disadvantages: [
+      'Quality depends on heuristic design',
+      'Memory heavy for huge state spaces',
+      'Can degrade toward Dijkstra behavior',
+    ],
+  },
+  {
+    id: 'prim',
+    name: "Prim's Minimum Spanning Tree",
+    category: 'graph',
+    description:
+      'Prim builds a minimum spanning tree by starting from one node and repeatedly adding the lowest-cost edge that connects a new vertex to the current tree.',
+    pseudocode: `procedure Prim(G, start)
+  mark start as in MST
+  add all edges from start to min-priority queue PQ
+
+  while PQ not empty do
+    (w, u, v) := extract-min PQ
+    if v not in MST then
+      add edge (u, v) to MST
+      mark v as in MST
+      add all edges from v to PQ
+    end if
+  end while
+end procedure`,
+    complexity: {
+      time: 'O((V + E) log V) with binary heap',
+      space: 'O(V + E)',
+    },
+    keyPoints: [
+      'Builds MST, not shortest paths',
+      'Greedy incremental edge selection',
+      'Works for connected weighted undirected graphs',
+      'Useful in network design and clustering',
+    ],
+    advantages: [
+      'Produces globally minimum spanning cost',
+      'Efficient with priority queue',
+      'Great for infrastructure/network planning',
+    ],
+    disadvantages: [
+      'Not meaningful for directed graphs',
+      'Needs connected graph for full spanning tree',
+      'Does not answer shortest path queries',
+    ],
+  },
 ];
 
 export default function LearnPage() {
@@ -255,8 +473,8 @@ export default function LearnPage() {
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white mb-4"><ScrambleText text="Algorithm Explanations" /></h1>
           <p className="text-lg text-slate-300">
-            Detailed explanations and pseudocode for common sorting algorithms. Click on any algorithm
-            to learn more about how it works.
+            Detailed explanations and pseudocode for all implemented sorting and graph algorithms.
+            Click on any algorithm to learn more about how it works.
           </p>
         </div>
 
@@ -270,6 +488,9 @@ export default function LearnPage() {
                 className="w-full p-6 flex items-center justify-between hover:bg-slate-800/50 transition"
               >
                 <div className="text-left">
+                  <div className="mb-2 inline-flex rounded-full border border-white/20 bg-slate-900/60 px-2.5 py-1 text-xs font-medium uppercase tracking-wide text-cyan-200">
+                    {algo.category}
+                  </div>
                   <h2 className="text-xl font-bold text-white">{algo.name}</h2>
                   <p className="text-slate-400 text-sm mt-1">{algo.description.substring(0, 100)}...</p>
                 </div>
