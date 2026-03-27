@@ -21,7 +21,7 @@ A comprehensive web application for visualizing and learning sorting algorithms,
 - **Map UI**: Leaflet + React Leaflet
 - **Routing Engines**: GraphHopper / OSRM
 - **Map Data**: OpenStreetMap
-- **Deployment**: Vercel (free tier optimized)
+- **Deployment**: Netlify
 
 ## Installation
 
@@ -125,7 +125,7 @@ src/
 - **Algorithm Details**: Description, time/space complexity, key points
 - **Expandable Cards**: Easy-to-read accordion layout
 
-## Deployment on Vercel (Free Tier)
+## Deployment on Netlify
 
 ## Real Map Routing Setup (GraphHopper + OSRM + OSM)
 
@@ -167,24 +167,25 @@ git remote add origin https://github.com/yourusername/algoviz.git
 git push -u origin main
 ```
 
-2. **Connect to Vercel**
-   - Go to [vercel.com](https://vercel.com)
+2. **Connect to Netlify**
+  - Go to [netlify.com](https://netlify.com)
    - Click "New Project"
    - Import your GitHub repository
    - Select "Algoviz" repo
    - Click "Deploy"
 
 3. **Configure Environment (if needed)**
-   - Framework Preset: Next.js (auto-detected)
-   - Build Command: `npm run build` (auto-detected)
-   - Output Directory: `.next` (auto-detected)
+  - Build command: `npm run build`
+  - Publish directory: `.next`
+  - Add environment variable in Site Settings -> Environment variables:
+    - `GRAPHHOPPER_API_KEY=your_graphhopper_api_key`
 
 4. **Deploy**
-   - Vercel will automatically deploy your project
-   - Your app will be live at `https://algoviz.vercel.app`
+  - Netlify will automatically deploy your project
+  - Your app will be live at `https://your-site-name.netlify.app`
 
 ### Custom Domain (Optional)
-- In Vercel Dashboard → Settings → Domains
+- In Netlify Dashboard -> Domain management
 - Add your custom domain
 - Follow DNS configuration instructions
 
@@ -210,7 +211,7 @@ git push -u origin main
 - `tsconfig.json` - TypeScript configuration
 - `postcss.config.js` - PostCSS configuration
 - `.eslintrc.json` - ESLint configuration
-- `vercel.json` - Vercel deployment configuration
+- `netlify.toml` - Netlify deployment configuration
 
 ## Contributing
 

@@ -1,7 +1,7 @@
 <!-- Use this file to provide workspace-specific custom instructions to Copilot. For more details, visit https://code.visualstudio.com/docs/copilot/copilot-customization#_use-a-githubcopilotinstructionsmd-file -->
 
 - [x] Verify that the copilot-instructions.md file in the .github directory is created.
-- [x] Clarify Project Requirements: Next.js algorithm visualizer with sorting, graphs, analysis, and Vercel deployment
+- [x] Clarify Project Requirements: Next.js algorithm visualizer with sorting, graphs, analysis, and Netlify deployment
 - [x] Scaffold the Project: Next.js with TypeScript, Tailwind CSS, ESLint, and App Router
 - [x] Customize the Project: Add algorithm visualizations, components, and analysis features
 - [x] Install Required Extensions: None required for Next.js
@@ -39,7 +39,7 @@ src/
 - **Visualizations**: Canvas/SVG animations with Framer Motion & GSAP
 - **Data Analysis**: Recharts for charts and graphs
 - **Icons**: Lucide React
-- **Deployment**: Vercel (free tier)
+- **Deployment**: Netlify
 
 ## Development Commands
 
@@ -59,7 +59,7 @@ src/
 
 ## Deployment
 
-Configured for Vercel free tier deployment. Push to GitHub and connect repository to Vercel.
+Configured for Netlify deployment. Push to GitHub and connect repository to Netlify.
 
 ## Notes
 
