@@ -59,6 +59,9 @@ export default function SortingVisualizer({
     active: [] as number[],
   });
   const [description, setDescription] = useState('Ready to sort');
+  const [inputMode, setInputMode] = useState<'random' | 'manual'>('random');
+  const [manualInput, setManualInput] = useState('');
+  const [sortedArray, setSortedArray] = useState<number[] | null>(null);
 
   const generateArray = useCallback(
     (size: number = arraySize) => {
@@ -66,9 +69,12 @@ export default function SortingVisualizer({
         Math.floor(Math.random() * 100) + 1
       );
       setArray(newArray);
+      setSortedArray(null);
       setHighlightedIndices({ comparing: [], sorted: [], active: [] });
       setDescription('Array generated. Click "Start" to begin sorting.');
       setStats({ comparisons: 0, swaps: 0, time: 0 });
+      setInputMode('random');
+      setManualInput('');
     },
     [arraySize]
   );
@@ -108,6 +114,27 @@ export default function SortingVisualizer({
     }
   }, [algorithm]);
 
+  const handleManualInput = () => {
+    const values = manualInput
+      .split(/[\s,]+/)
+      .filter((v) => v)
+      .map((v) => parseInt(v, 10))
+      .filter((v) => !isNaN(v));
+
+    if (values.length < 2) {
+      setDescription('Please enter at least 2 numbers.');
+      return;
+    }
+
+    setArray(values);
+    setSortedArray(null);
+    setArraySize(values.length);
+    setHighlightedIndices({ comparing: [], sorted: [], active: [] });
+    setDescription('Array loaded from input. Click "Start" to begin sorting.');
+    setStats({ comparisons: 0, swaps: 0, time: 0 });
+    setInputMode('manual');
+  };
+
   const startSorting = useCallback(async () => {
     if (runningRef.current) return;
 
@@ -124,6 +151,7 @@ export default function SortingVisualizer({
 
     let currentStats = { comparisons: 0, swaps: 0 };
     const frameDelayMs = Math.max(12, Math.round(105 - speed));
+    let finalArray = [...initialArray];
 
     try {
       await sortFunc(initialArray, async (step: AlgorithmStep) => {
@@ -151,7 +179,9 @@ export default function SortingVisualizer({
 
         lastRenderRef.current = now;
 
-        setArray(step.array || initialArray);
+        const stepArray = step.array || initialArray;
+        finalArray = [...stepArray];
+        setArray(stepArray);
         setHighlightedIndices({
           comparing: step.indices?.comparing ?? [],
           sorted: step.indices?.sorted ?? [],
@@ -167,7 +197,9 @@ export default function SortingVisualizer({
       });
 
       if (!stopRef.current) {
-        setArray([...initialArray]);
+        setArray(finalArray);
+        setSortedArray(finalArray);
+        setHighlightedIndices({ comparing: [], sorted: Array.from({ length: finalArray.length }, (_, i) => i), active: [] });
         setDescription('Sorting complete!');
         setStats({
           ...currentStats,
@@ -181,7 +213,6 @@ export default function SortingVisualizer({
     } finally {
       runningRef.current = false;
       setSorting(false);
-      setHighlightedIndices({ comparing: [], sorted: [], active: [] });
     }
   }, [array, speed, sortFunc]);
 
@@ -197,7 +228,19 @@ export default function SortingVisualizer({
     runningRef.current = false;
     setPaused(false);
     setSorting(false);
-    generateArray();
+    
+    if (sortedArray) {
+      // Reset to the original unsorted state
+      const originalArray = sortedArray.map(() => Math.floor(Math.random() * 100) + 1);
+      setArray(originalArray);
+      setSortedArray(null);
+    } else {
+      generateArray();
+    }
+    
+    setHighlightedIndices({ comparing: [], sorted: [], active: [] });
+    setDescription('Array reset. Click "Start" to begin sorting.');
+    setStats({ comparisons: 0, swaps: 0, time: 0 });
   };
 
   const handleArraySizeChange = (newSize: number) => {
@@ -206,14 +249,96 @@ export default function SortingVisualizer({
       Math.floor(Math.random() * 100) + 1
     );
     setArray(newArray);
+    setSortedArray(null);
     setHighlightedIndices({ comparing: [], sorted: [], active: [] });
     setDescription('Array resized. Click "Start" to begin sorting.');
+    setStats({ comparisons: 0, swaps: 0, time: 0 });
   };
 
   const maxValue = Math.max(...array, 100);
 
   return (
     <div className="w-full">
+      {/* Input Section */}
+      <div className="card mb-8 p-4 sm:p-8">
+        <h3 className="text-xl font-bold text-white mb-4">Input Method</h3>
+        
+        <div className="mb-6 flex gap-2 rounded-lg border border-white/15 bg-slate-900/50 p-1">
+          <button
+            onClick={() => setInputMode('random')}
+            className={`flex-1 rounded py-2 transition ${
+              inputMode === 'random'
+                ? 'bg-cyan-500/25 text-cyan-100'
+                : 'text-slate-300 hover:bg-white/10'
+            }`}
+            disabled={sorting}
+          >
+            Random Array
+          </button>
+          <button
+            onClick={() => setInputMode('manual')}
+            className={`flex-1 rounded py-2 transition ${
+              inputMode === 'manual'
+                ? 'bg-cyan-500/25 text-cyan-100'
+                : 'text-slate-300 hover:bg-white/10'
+            }`}
+            disabled={sorting}
+          >
+            Manual Input
+          </button>
+        </div>
+
+        {inputMode === 'random' ? (
+          <div className="space-y-3">
+            <div className="space-y-2">
+              <label htmlFor="array-size" className="text-slate-300 font-medium">
+                Array Size
+              </label>
+              <input
+                id="array-size"
+                type="range"
+                min="5"
+                max="100"
+                value={arraySize}
+                onChange={(e) => handleArraySizeChange(Number(e.target.value))}
+                disabled={sorting}
+                className="w-full h-2 bg-slate-700 rounded-lg cursor-pointer"
+              />
+              <div className="text-sm text-slate-400">{arraySize} elements</div>
+            </div>
+            <button
+              onClick={() => generateArray(arraySize)}
+              disabled={sorting}
+              className="btn btn-secondary w-full disabled:opacity-50"
+            >
+              Generate New Array
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <label htmlFor="manual-array" className="text-slate-300 font-medium">
+              Enter numbers separated by spaces or commas
+            </label>
+            <textarea
+              id="manual-array"
+              value={manualInput}
+              onChange={(e) => setManualInput(e.target.value)}
+              placeholder="e.g., 45 23 51 89 12 or 45,23,51,89,12"
+              disabled={sorting}
+              className="w-full rounded-lg border border-white/15 bg-slate-900/50 px-3 py-2 text-slate-100 outline-none transition focus:border-cyan-400 disabled:opacity-50"
+              rows={4}
+            />
+            <button
+              onClick={handleManualInput}
+              disabled={sorting || !manualInput.trim()}
+              className="btn btn-secondary w-full disabled:opacity-50"
+            >
+              Load Array
+            </button>
+          </div>
+        )}
+      </div>
+
       {/* Visualizer */}
       <div className="card mb-8 p-4 sm:p-8">
         <div className="mb-8">
@@ -302,25 +427,6 @@ export default function SortingVisualizer({
               max="100"
               value={speed}
               onChange={(e) => setSpeed(Number(e.target.value))}
-              disabled={sorting}
-              className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer disabled:opacity-50"
-            />
-          </div>
-
-          {/* Array Size Control */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label htmlFor="sorting-array-size" className="text-slate-300 font-medium">Array Size</label>
-              <span className="text-slate-400 text-sm">{arraySize} elements</span>
-            </div>
-            <input
-              id="sorting-array-size"
-              title="Sorting array size"
-              type="range"
-              min="10"
-              max="100"
-              value={arraySize}
-              onChange={(e) => handleArraySizeChange(Number(e.target.value))}
               disabled={sorting}
               className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer disabled:opacity-50"
             />

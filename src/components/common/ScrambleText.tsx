@@ -15,8 +15,8 @@ const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 export default function ScrambleText({
   text,
   className = '',
-  durationMs = 200,
-  staggerMs = 10,
+  durationMs = 1000,
+  staggerMs = 5,
 }: ScrambleTextProps) {
   const [display, setDisplay] = useState(text);
   const tweenRef = useRef<gsap.core.Tween | null>(null);
@@ -64,9 +64,5 @@ export default function ScrambleText({
     };
   }, [text, durationMs, staggerMs, chars]);
 
-  return (
-    <span className={`inline-block leading-[1.1] pb-[0.08em] ${className}`}>
-      {display}
-    </span>
-  );
+  return <span className={`inline-block leading-[1.25] pt-[0.08em] pb-[0.08em] align-middle ${className}`}>{display}</span>;
 }

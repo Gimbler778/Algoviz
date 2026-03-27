@@ -78,8 +78,8 @@ export default function Home() {
           <div className="mb-6 flex justify-center">
             <BrandLogo size="lg" withText={false} />
           </div>
-          <h1 className="mb-5 bg-gradient-to-r from-cyan-200 via-sky-100 to-orange-200 bg-clip-text text-4xl font-bold tracking-tight text-transparent drop-shadow-[0_0_24px_rgba(34,211,238,0.25)] sm:mb-6 sm:text-6xl">
-            <ScrambleText text="Algoviz" durationMs={1200} />
+          <h1 className="mb-5 pt-1 bg-gradient-to-r from-cyan-200 via-sky-100 to-orange-200 bg-clip-text text-4xl font-bold leading-[1.3] tracking-tight text-transparent drop-shadow-[0_0_24px_rgba(34,211,238,0.25)] sm:mb-6 sm:text-6xl">
+            <ScrambleText text="Algoviz" durationMs={600} />
           </h1>
           <p className="mx-auto max-w-2xl text-base text-slate-200/90 sm:text-xl">
             Interactive visualizations for sorting, graph traversal, routing, and complexity.
@@ -119,7 +119,7 @@ export default function Home() {
           className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16"
         >
           <div className="md:col-span-2 mb-1 text-center text-2xl font-bold text-cyan-100">
-            <ScrambleText text="Algorithm Modules" durationMs={1100} />
+            Algorithm Modules
           </div>
           {features.map((feature) => {
             const Icon = feature.icon;

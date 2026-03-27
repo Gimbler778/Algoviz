@@ -4,6 +4,20 @@ import { useCallback, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { PlayIcon, RotateCcwIcon } from 'lucide-react';
 import {
+  ScatterChart,
+  Scatter,
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
+import {
   bubbleSort,
   quickSort,
   mergeSort,
@@ -12,7 +26,7 @@ import {
   heapSort,
 } from '@/lib/algorithms/sorting';
 import { AlgorithmStep } from '@/lib/types';
-import ScrambleText from '@/components/common/ScrambleText';
+
 
 type SortingAlgorithmName =
   | 'Bubble Sort'
@@ -346,6 +360,26 @@ export default function AnalysisPage() {
     return [...sortingSeries, ...graphSeries].filter((series) => focusedSeries === 'All' || series.name === focusedSeries);
   }, [dashboard, focusedSeries, sortingAlgorithms]);
 
+  const runtimeLineChartData = useMemo(() => {
+    if (!runtimeLineSeries.length) return [];
+
+    const allSizes = new Set<number>();
+    runtimeLineSeries.forEach((series) => {
+      series.points.forEach((point) => allSizes.add(point.size));
+    });
+
+    const sortedSizes = Array.from(allSizes).sort((a, b) => a - b);
+
+    return sortedSizes.map((size) => {
+      const entry: Record<string, number> = { size };
+      runtimeLineSeries.forEach((series) => {
+        const point = series.points.find((p) => p.size === size);
+        entry[series.name] = point?.timeMs ?? 0;
+      });
+      return entry;
+    });
+  }, [runtimeLineSeries]);
+
   const scatterPoints = useMemo(() => {
     if (!dashboard) return [];
 
@@ -451,7 +485,7 @@ export default function AnalysisPage() {
     <div className="min-h-[calc(100vh-120px)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h1 className="mb-8 bg-gradient-to-r from-orange-300 to-cyan-300 bg-clip-text text-3xl font-bold text-transparent sm:text-4xl">
-          <ScrambleText text="Unified Algorithm Analysis Dashboard" />
+          Unified Algorithm Analysis Dashboard
         </h1>
 
         <div className="card mb-8 p-4 sm:p-8">
@@ -618,308 +652,190 @@ export default function AnalysisPage() {
                 </div>
               </div>
 
-              <div className="overflow-x-auto">
-                <svg viewBox="0 0 1000 360" className="min-w-[760px] w-full rounded-lg border border-white/10 bg-slate-950/60">
-                  <line x1="70" y1="300" x2="960" y2="300" stroke="#64748b" strokeWidth="1" />
-                  <line x1="70" y1="30" x2="70" y2="300" stroke="#64748b" strokeWidth="1" />
-                  <text x="70" y="316" textAnchor="middle" fill="#64748b" fontSize="10">0</text>
-                  <text x="960" y="316" textAnchor="middle" fill="#64748b" fontSize="10">max</text>
-                  <text x="58" y="300" textAnchor="end" fill="#64748b" fontSize="10">0</text>
-                  <text x="58" y="34" textAnchor="end" fill="#64748b" fontSize="10">max</text>
-
-                  {scatterPoints.map((point) => {
-                    const x = 70 + (point.x / 100) * 870;
-                    const y = 300 - (point.y / 100) * 250;
-
-                    if (point.shape === 'square') {
-                      return (
-                        <g key={point.key}>
-                          <title>{point.label}</title>
-                          <rect
-                            x={x - 4}
-                            y={y - 4}
-                            width="8"
-                            height="8"
-                            fill={point.color}
-                            opacity="0.95"
-                            onMouseEnter={() => updateHoverInsight(point.label)}
-                            onClick={() => pinInsight(point.label)}
-                          />
-                        </g>
-                      );
-                    }
-
-                    return (
-                      <g key={point.key}>
-                        <title>{point.label}</title>
-                        <circle
-                          cx={x}
-                          cy={y}
-                          r="4"
-                          fill={point.color}
-                          opacity="0.9"
-                          onMouseEnter={() => updateHoverInsight(point.label)}
-                          onClick={() => pinInsight(point.label)}
-                        />
-                      </g>
-                    );
-                  })}
-
-                  <text x="500" y="340" textAnchor="middle" fill="#94a3b8" fontSize="12">{AXIS_CONFIG[scatterXAxis].label}</text>
-                  <text x="20" y="170" textAnchor="middle" fill="#94a3b8" fontSize="12" transform="rotate(-90 20 170)">
-                    {AXIS_CONFIG[scatterYAxis].label}
-                  </text>
-                </svg>
-              </div>
+              <ResponsiveContainer width="100%" height={400}>
+                <ScatterChart margin={{ top: 20, right: 20, bottom: 100, left: 80 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
+                  <XAxis
+                    dataKey="x"
+                    name={AXIS_CONFIG[scatterXAxis].label}
+                    stroke="#94a3b8"
+                    label={{ fill: '#94a3b8', value: AXIS_CONFIG[scatterXAxis].label, offset: 10, position: 'insideBottomRight' }}
+                  />
+                  <YAxis
+                    dataKey="y"
+                    name={AXIS_CONFIG[scatterYAxis].label}
+                    stroke="#94a3b8"
+                    label={{ fill: '#94a3b8', value: AXIS_CONFIG[scatterYAxis].label, angle: -90, position: 'insideLeft', offset: 10 }}
+                  />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #475569', borderRadius: '8px' }}
+                    labelStyle={{ color: '#e2e8f0' }}
+                    cursor={{ fill: 'rgba(34, 211, 238, 0.1)' }}
+                  />
+                  <Scatter
+                    name="Sorting"
+                    data={scatterPoints.filter((p) => !p.label.includes('Graph'))}
+                    fill="#60a5fa"
+                    shape="circle"
+                  />
+                  <Scatter
+                    name="Graph"
+                    data={scatterPoints.filter((p) => p.label.includes('Graph'))}
+                    fill="#f59e0b"
+                    shape="square"
+                  />
+                </ScatterChart>
+              </ResponsiveContainer>
             </div>
 
-            <div className="card p-4 sm:p-8">
-              <h3 className="mb-4 text-xl font-bold text-white">Violin-Style Runtime Distribution (Sorting)</h3>
-              <p className="mb-6 text-sm text-slate-400">
-                Wider bands mean denser runtime observations for that algorithm.
-              </p>
-
-              <div className="overflow-x-auto">
-                <svg viewBox="0 0 1000 380" className="min-w-[760px] w-full rounded-lg border border-white/10 bg-slate-950/60">
-                  <line x1="70" y1="320" x2="960" y2="320" stroke="#475569" strokeWidth="1" />
-                  <line x1="70" y1="40" x2="70" y2="320" stroke="#475569" strokeWidth="1" />
-
-                  {sortingViolin.map((row, idx) => {
-                    const x = 120 + idx * 145;
-                    const range = Math.max(0.001, row.max - row.min);
-                    const color = SORT_COLORS[row.algorithm];
-
-                    return (
-                      <g key={row.algorithm}>
-                        {row.buckets.map((bucket, bucketIdx) => {
-                          const y = 320 - ((bucket.center - row.min) / range) * 250;
-                          return (
-                            <rect
-                              key={`${row.algorithm}-${bucketIdx}`}
-                              x={x - bucket.width}
-                              y={y - 6}
-                              width={bucket.width * 2}
-                              height="10"
-                              fill={color}
-                              opacity="0.5"
-                              rx="4"
-                            />
-                          );
-                        })}
-
-                        <line x1={x} y1="52" x2={x} y2="318" stroke={color} strokeOpacity="0.65" strokeWidth="1" />
-                        <text x={x} y="346" textAnchor="middle" fill="#cbd5e1" fontSize="12">
-                          {row.algorithm.replace(' Sort', '')}
-                        </text>
-                      </g>
-                    );
-                  })}
-
-                  <text x="500" y="368" textAnchor="middle" fill="#94a3b8" fontSize="12">Algorithm</text>
-                  <text x="20" y="182" textAnchor="middle" fill="#94a3b8" fontSize="12" transform="rotate(-90 20 182)">
-                    Runtime Density (ms)
-                  </text>
-                </svg>
-              </div>
-            </div>
-
+            {/* Line Chart: Runtime Trends */}
             <div className="card p-4 sm:p-8">
               <h3 className="mb-4 text-xl font-bold text-white">Line Plot: Runtime Trends Across Input Sizes</h3>
               <p className="mb-6 text-sm text-slate-400">
-                How to read: steeper lines indicate runtime grows faster as input size increases.
+                How to read: steeper lines indicate runtime grows faster as input size increases. Switch focus series dropdown to isolate individual algorithms.
               </p>
 
-              <div className="overflow-x-auto">
-                <svg viewBox="0 0 1000 360" className="min-w-[760px] w-full rounded-lg border border-white/10 bg-slate-950/60">
-                  <line x1="70" y1="300" x2="960" y2="300" stroke="#64748b" strokeWidth="1" />
-                  <line x1="70" y1="30" x2="70" y2="300" stroke="#64748b" strokeWidth="1" />
-                  <text x="70" y="316" textAnchor="middle" fill="#64748b" fontSize="10">min</text>
-                  <text x="960" y="316" textAnchor="middle" fill="#64748b" fontSize="10">max</text>
-                  <text x="58" y="300" textAnchor="end" fill="#64748b" fontSize="10">0</text>
-                  <text x="58" y="34" textAnchor="end" fill="#64748b" fontSize="10">max</text>
-
-                  {runtimeLineSeries.map((series) => {
-                    const maxX = Math.max(...runtimeLineSeries.flatMap((line) => line.points.map((point) => point.size)), 1);
-                    const maxY = Math.max(...runtimeLineSeries.flatMap((line) => line.points.map((point) => point.timeMs)), 1);
-
-                    const plotted = series.points.map((point) => ({
-                      x: 70 + (point.size / maxX) * 870,
-                      y: 300 - (point.timeMs / maxY) * 250,
-                    }));
-
-                    return (
-                      <g key={`line-${series.name}`}>
-                        <path d={polylinePath(plotted)} fill="none" stroke={series.color} strokeWidth="2.5" opacity="0.9" />
-                        {plotted.map((point, idx) => (
-                          <circle
-                            key={`${series.name}-${idx}`}
-                            cx={point.x}
-                            cy={point.y}
-                            r="3.5"
-                            fill={series.color}
-                            onMouseEnter={() =>
-                              updateHoverInsight(`${series.family === 'sorting' ? 'Sorting' : 'Graph'}: ${series.name} | Size ${series.points[idx].size} | ${series.points[idx].timeMs.toFixed(3)}ms`)
-                            }
-                            onClick={() =>
-                              pinInsight(`${series.family === 'sorting' ? 'Sorting' : 'Graph'}: ${series.name} | Size ${series.points[idx].size} | ${series.points[idx].timeMs.toFixed(3)}ms`)
-                            }
-                          />
-                        ))}
-                      </g>
-                    );
-                  })}
-
-                  <text x="500" y="340" textAnchor="middle" fill="#94a3b8" fontSize="12">Input Size</text>
-                  <text x="20" y="170" textAnchor="middle" fill="#94a3b8" fontSize="12" transform="rotate(-90 20 170)">
-                    Runtime (ms)
-                  </text>
-                </svg>
-              </div>
+              {runtimeLineChartData.length > 0 && (
+                <ResponsiveContainer width="100%" height={400}>
+                  <LineChart data={runtimeLineChartData} margin={{ top: 20, right: 20, bottom: 60, left: 80 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
+                    <XAxis
+                      dataKey="size"
+                      stroke="#94a3b8"
+                      label={{ fill: '#94a3b8', value: 'Input Size / Vertices', offset: 10, position: 'insideBottomRight' }}
+                    />
+                    <YAxis
+                      stroke="#94a3b8"
+                      label={{ fill: '#94a3b8', value: 'Runtime (ms)', angle: -90, position: 'insideLeft', offset: 10 }}
+                    />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #475569', borderRadius: '8px' }}
+                      labelStyle={{ color: '#e2e8f0' }}
+                    />
+                    <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                    {runtimeLineSeries.map((series) => (
+                      <Line
+                        key={series.name}
+                        type="monotone"
+                        dataKey={series.name}
+                        stroke={series.color}
+                        strokeWidth={2}
+                        dot={false}
+                        isAnimationActive={false}
+                      />
+                    ))}
+                  </LineChart>
+                </ResponsiveContainer>
+              )}
+              {runtimeLineChartData.length === 0 && (
+                <div className="flex h-64 items-center justify-center rounded-lg border border-dashed border-white/20 bg-slate-900/40">
+                  <p className="text-slate-400">Generate dashboard to display runtime trends</p>
+                </div>
+              )}
             </div>
 
+            {/* Bar Chart: Sorting Comparisons */}
             <div className="card p-4 sm:p-8">
-              <h3 className="mb-4 text-xl font-bold text-white">Heatmap: Sorting Runtime Intensity</h3>
+              <h3 className="mb-6 text-xl font-bold text-white">Sorting Comparisons by Size</h3>
               <p className="mb-6 text-sm text-slate-400">
-                How to read: darker/stronger cells mean higher runtime for that algorithm at that size.
+                How to read: longer bars mean more comparisons. Lower bars indicate more efficient algorithms. Scroll horizontally on smaller screens.
               </p>
 
-              <div className="overflow-x-auto">
-                <svg viewBox="0 0 1000 320" className="min-w-[760px] w-full rounded-lg border border-white/10 bg-slate-950/60">
-                  {sortingAlgorithms.map((algo, rowIdx) => {
-                    return SORT_SIZES.map((size, colIdx) => {
-                      const row = dashboard.sorting.find((entry) => entry.algorithm === algo.name && entry.size === size);
-                      const intensity = row ? Math.min(1, row.timeMs / Math.max(1, sortingMaxTime)) : 0;
-                      const x = 190 + colIdx * 170;
-                      const y = 36 + rowIdx * 40;
+              <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+                {SORT_SIZES.map((size) => {
+                  const data = sortedBySize[size]?.map((row) => ({
+                    name: row.algorithm.replace(' Sort', ''),
+                    comparisons: row.comparisons,
+                    swaps: row.swaps,
+                  })) || [];
 
-                      return (
-                        <g key={`${algo.name}-${size}`}>
-                          <rect
-                            x={x}
-                            y={y}
-                            width="150"
-                            height="30"
-                            rx="6"
-                            fill="#22d3ee"
-                            fillOpacity={0.15 + intensity * 0.75}
-                            onMouseEnter={() =>
-                              updateHoverInsight(`${algo.name} @ n=${size} -> ${row?.timeMs.toFixed(3) || '0.000'}ms`)
-                            }
-                            onClick={() =>
-                              pinInsight(`${algo.name} @ n=${size} -> ${row?.timeMs.toFixed(3) || '0.000'}ms`)
-                            }
+                  return (
+                    <div key={size}>
+                      <div className="mb-6 text-base font-bold text-cyan-300">Array Size: {size}</div>
+                      <ResponsiveContainer width="100%" height={300}>
+                        <BarChart data={data} margin={{ top: 20, right: 20, bottom: 80, left: 80 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
+                          <XAxis
+                            dataKey="name"
+                            stroke="#94a3b8"
+                            angle={-45}
+                            textAnchor="end"
+                            height={110}
+                            interval={0}
+                            tick={{ fontSize: 12 }}
                           />
-                          <text x={x + 75} y={y + 20} textAnchor="middle" fill="#e2e8f0" fontSize="11" fontWeight="600">
-                            {row?.timeMs.toFixed(2)}ms
-                          </text>
-                        </g>
-                      );
-                    });
-                  })}
-
-                  {sortingAlgorithms.map((algo, rowIdx) => (
-                    <text key={`row-${algo.name}`} x="176" y={56 + rowIdx * 40} textAnchor="end" fill="#94a3b8" fontSize="12">
-                      {algo.name.replace(' Sort', '')}
-                    </text>
-                  ))}
-
-                  {SORT_SIZES.map((size, colIdx) => (
-                    <text key={`col-${size}`} x={265 + colIdx * 170} y="24" textAnchor="middle" fill="#94a3b8" fontSize="12">
-                      n={size}
-                    </text>
-                  ))}
-
-                  <text x="500" y="306" textAnchor="middle" fill="#94a3b8" fontSize="12">Input Size (n)</text>
-                  <text x="26" y="160" textAnchor="middle" fill="#94a3b8" fontSize="12" transform="rotate(-90 26 160)">
-                    Sorting Algorithm
-                  </text>
-                </svg>
+                          <YAxis
+                            stroke="#94a3b8"
+                            label={{ fill: '#94a3b8', value: 'Comparisons', angle: -90, position: 'insideLeft', offset: 10 }}
+                          />
+                          <Tooltip
+                            contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #475569', borderRadius: '8px' }}
+                            labelStyle={{ color: '#e2e8f0' }}
+                          />
+                          <Bar
+                            dataKey="comparisons"
+                            fill="#60a5fa"
+                            radius={[6, 6, 0, 0]}
+                            isAnimationActive={false}
+                          />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-8 xl:grid-cols-2">
-              <div className="card p-4 sm:p-8">
-                <h3 className="mb-6 text-xl font-bold text-white">Sorting Comparisons by Size</h3>
-                <p className="mb-6 text-sm text-slate-400">
-                  How to read: for each fixed size, longer bars mean more comparisons, so lower bars are generally more efficient.
-                </p>
-                <div className="space-y-8">
-                  {SORT_SIZES.map((size) => (
-                    <div key={size}>
-                      <div className="mb-3 text-sm font-semibold text-slate-300">Size: {size}</div>
-                      <div className="space-y-2">
-                        {sortedBySize[size]?.map((row) => (
-                          <div key={`${row.algorithm}-${size}`} className="flex items-center gap-3">
-                            <div className="w-32 text-xs text-slate-400">{row.algorithm}</div>
-                            <div className="h-7 flex-1 overflow-hidden rounded border border-white/10 bg-slate-950/50 px-1 py-1">
-                              <svg viewBox="0 0 1000 24" className="h-full w-full">
-                                <rect
-                                  x="0"
-                                  y="0"
-                                  width={(row.comparisons / sortingMaxComparisons) * 1000}
-                                  height="24"
-                                  rx="5"
-                                  fill={SORT_COLORS[row.algorithm]}
-                                  onMouseEnter={() =>
-                                    updateHoverInsight(`Sorting: ${row.algorithm} at n=${size} used ${row.comparisons} comparisons and ${row.swaps} swaps.`)
-                                  }
-                                  onClick={() =>
-                                    pinInsight(`Sorting: ${row.algorithm} at n=${size} used ${row.comparisons} comparisons and ${row.swaps} swaps.`)
-                                  }
-                                />
-                                <text x="980" y="16" textAnchor="end" fill="#ffffff" fontSize="11" fontWeight="700">
-                                  {row.comparisons}
-                                </text>
-                              </svg>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+            {/* Bar Chart: Graph Scores */}
+            <div className="card p-4 sm:p-8">
+              <h3 className="mb-6 text-xl font-bold text-white">Graph Score Bars by Vertex Count</h3>
+              <p className="mb-6 text-sm text-slate-400">
+                Lower bars indicate lighter expected computational load. Scroll horizontally on smaller screens.
+              </p>
 
-              <div className="card p-4 sm:p-8">
-                <h3 className="mb-6 text-xl font-bold text-white">Graph Score Bars by Vertex Count</h3>
-                <p className="mb-6 text-sm text-slate-400">
-                  How to read: this synthetic score combines scale and estimated work; lower bars indicate lighter expected computational load.
-                </p>
-                <div className="space-y-8">
-                  {GRAPH_SIZES.map((vertices) => (
+              <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+                {GRAPH_SIZES.map((vertices) => {
+                  const data = graphByVertices[vertices]
+                    ?.slice(0, graphReference.length)
+                    .map((row) => ({
+                      name: row.algorithm,
+                      score: row.score,
+                    })) || [];
+
+                  return (
                     <div key={vertices}>
-                      <div className="mb-3 text-sm font-semibold text-slate-300">Vertices: {vertices}</div>
-                      <div className="space-y-2">
-                        {graphByVertices[vertices]?.slice(0, graphReference.length).map((row) => (
-                          <div key={`${row.algorithm}-${vertices}`} className="flex items-center gap-3">
-                            <div className="w-32 text-xs text-slate-400">{row.algorithm}</div>
-                            <div className="h-7 flex-1 overflow-hidden rounded border border-white/10 bg-slate-950/50 px-1 py-1">
-                              <svg viewBox="0 0 1000 24" className="h-full w-full">
-                                <rect
-                                  x="0"
-                                  y="0"
-                                  width={(row.score / graphMaxScore) * 1000}
-                                  height="24"
-                                  rx="5"
-                                  fill={GRAPH_COLORS[row.algorithm]}
-                                  onMouseEnter={() =>
-                                    updateHoverInsight(`Graph: ${row.algorithm} at V=${row.vertices}, E=${row.edges} has estimatedOps=${row.estimatedOps} and score=${row.score}.`)
-                                  }
-                                  onClick={() =>
-                                    pinInsight(`Graph: ${row.algorithm} at V=${row.vertices}, E=${row.edges} has estimatedOps=${row.estimatedOps} and score=${row.score}.`)
-                                  }
-                                />
-                                <text x="980" y="16" textAnchor="end" fill="#ffffff" fontSize="11" fontWeight="700">
-                                  {row.score}
-                                </text>
-                              </svg>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                      <div className="mb-6 text-base font-bold text-orange-300">Vertex Count: {vertices}</div>
+                      <ResponsiveContainer width="100%" height={300}>
+                        <BarChart data={data} margin={{ top: 20, right: 20, bottom: 80, left: 80 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
+                          <XAxis
+                            dataKey="name"
+                            stroke="#94a3b8"
+                            angle={-45}
+                            textAnchor="end"
+                            height={110}
+                            interval={0}
+                            tick={{ fontSize: 12 }}
+                          />
+                          <YAxis
+                            stroke="#94a3b8"
+                            label={{ fill: '#94a3b8', value: 'Score', angle: -90, position: 'insideLeft', offset: 10 }}
+                          />
+                          <Tooltip
+                            contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #475569', borderRadius: '8px' }}
+                            labelStyle={{ color: '#e2e8f0' }}
+                          />
+                          <Bar
+                            dataKey="score"
+                            fill="#f59e0b"
+                            radius={[6, 6, 0, 0]}
+                            isAnimationActive={false}
+                          />
+                        </BarChart>
+                      </ResponsiveContainer>
                     </div>
-                  ))}
-                </div>
+                  );
+                })}
               </div>
             </div>
 
